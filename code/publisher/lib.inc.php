@@ -13,5 +13,8 @@ $SMARTY->setConfigDir(dirname(__FILE__)."/smarty/configs");
 $SMARTY->assign("static", "/static");
 
 function is_logged_in(){
-	return false;
+	global $DB, $current_user;
+	if(!array_key_exists("user", $_SESSION)) return false;
+	$current_user = $DB->users->findOne(array("_id" => $_SESSION['user']));
+	return $current_user !== null;
 }

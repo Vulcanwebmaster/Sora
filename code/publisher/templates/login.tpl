@@ -6,7 +6,7 @@
 var challenge = "{$challenge}";
 $(function(){
 	$("form").submit(function(){
-		var hash = hex_hmac_sha1(challenge, $("#password").val());
+		var hash = hex_hmac_sha1(challenge, hex_sha1($("#password").val()));
 		$("#password").val(hash);
 	})
 })
@@ -15,6 +15,9 @@ $(function(){
 {block "body"}
 <div id="login">
 <h1>Login</h1>
+{if isset($error)}
+<div class="error">{$error}</div>
+{/if}
 <form action="login.php" method="POST">
 	<table>
 		<tr><th><label for="username">Username</label></th><td><input type="text" name="username" id="username"></td></tr>
