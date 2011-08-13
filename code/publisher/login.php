@@ -11,7 +11,7 @@ function check_login(){
 		return false;
 	}
 	// 1: Get the user from database
-	$user = $DB->users->findOne(array("username" => $_POST['username']));
+	$user = $DB->users->findOne(array("_id" => $_POST['username']));
 	if($user === null){
 		$SMARTY->assign("error", "Wrong username/password combination.");
 		return false;
