@@ -42,7 +42,7 @@ function is_logged_in(){
 function current_user_can($name){
 	global $current_user;
 	$permissions = array(
-		"create stream" => 1,
+		"create stream" => 2,
 		"delete stream" => 2,
 		"post updates" => 0,
 		"publish updates" => 1,

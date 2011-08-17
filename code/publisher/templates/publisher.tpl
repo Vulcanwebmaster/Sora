@@ -8,6 +8,7 @@
 <div id="postform" class="box">
 	Post message
 </div>
+{if $can_action}
 <div id="action" class="box">
 	<h2>Stream</h2>
 	<fieldset id="config">
@@ -33,4 +34,5 @@
 		</form>
 	</fieldset>
 </div>
+{/if}
 {/block}

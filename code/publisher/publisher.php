@@ -12,7 +12,7 @@ if(!$stream){
 	die();
 }
 
-if(array_key_exists("type", $_POST)){
+if(array_key_exists("type", $_POST) && current_user_can("delete stream")){
 	$type = $_POST['type'];
 	if($type == "config"){
 		$configTypes = array(
@@ -41,5 +41,6 @@ $messages = $DB->messages->find(array("stream" => $stream));
 
 $SMARTY->assign("stream", $stream);
 $SMARTY->assign("messages", $messages);
+$SMARTY->assign("can_action", current_user_can("delete stream"));
 
 $SMARTY->display("publisher.tpl");
