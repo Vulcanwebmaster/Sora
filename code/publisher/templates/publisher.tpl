@@ -3,11 +3,33 @@
 {block "body"}
 <h1>{$stream.name}</h1>
 <div id="messages" class="box">
-	List of messages
+{foreach $messages as $message}
+{include file="stream.`$message.kind`.tpl"}
+{/foreach}
+{if $page > 1}
+<a href="?page={$page-1}">Prev page</a>
+{/if}
+Page {$page} | {$total_message} items
+{if $nextpage}
+<a href="?page={$page+1}">Next page</a>
+{/if}
 </div>
+{if $can_post}
 <div id="postform" class="box">
-	Post message
+	<form action="publishserver.php?stream={$stream._id}" method="post">
+		<strong>Kind:</strong> <select name="kind">
+			<option value="message">Text</option>
+		</select><br />
+		<input type="text" name="text"><br />
+		{if $stream.config.autopublish|default:false or $can_publish}
+		<input type="checkbox" name="publish"{if $stream.config.autopublish|default:false} checked{/if}> Publish<br/>
+		{/if}
+		<input type="submit" value="Add">
+		<input type="hidden" name="type" value="update">
+		<input type="hidden" name="return ref" value="true">
+	</form>
 </div>
+{/if}
 {if $can_action}
 <div id="action" class="box">
 	<h2>Stream</h2>

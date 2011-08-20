@@ -4,6 +4,12 @@ session_set_cookie_params(30*24*3600);
 session_start();
 
 include "../config.inc.php";
+/**
+ * MongoDB connection
+ */
+$MONGO = new Mongo($config['host']."/sora");
+$DB = $MONGO->sora;
+
 require "/usr/share/php/smarty3/Smarty.class.php";
 /**
  * Smarty renderer with options set
@@ -20,11 +26,13 @@ $SMARTY->assign("DB", $DB);
  * Check the login status of current visitor
  * Also set $current_user and add the info
  * to $SMARTY
- * @return bool
+ * @return bool True if logged in, false if not
  */
 function is_logged_in(){
 	global $DB, $current_user, $SMARTY;
-	if(!array_key_exists("user", $_SESSION)) return false;
+	if(!array_key_exists("user", $_SESSION)){
+		return false;
+	}
 	$current_user = $DB->users->findOne(array("_id" => $_SESSION['user']));
 	$SMARTY->assign("user", $current_user);
 	return $current_user !== null;
@@ -43,7 +51,7 @@ function current_user_can($name){
 	global $current_user;
 	$permissions = array(
 		"create stream" => 2,
-		"delete stream" => 2,
+		"delete stream" => 2, // includes edit stream
 		"post updates" => 0,
 		"publish updates" => 1,
 		"delete updates" => 1,

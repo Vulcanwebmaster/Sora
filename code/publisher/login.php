@@ -1,6 +1,13 @@
 <?php
 include "lib.inc.php";
 
+/**
+ * Check whether the requested login is correct 
+ * 
+ * I use a function instead of inline code
+ * Because I can `return` everywhere I want
+ * @return boolean false if invalid, true if login passed
+ */
 function check_login(){
 	global $SMARTY, $DB;
 	// 0: Check for no challenge.

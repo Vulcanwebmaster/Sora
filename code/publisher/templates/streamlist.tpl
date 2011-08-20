@@ -5,7 +5,7 @@ Logged in as {$user._id}
 {foreach $streams as $stream}
 <div class="stream">
 	<h2><a href="publisher.php?stream={$stream._id}">{$stream.name}</a></h2>
-	Publish date {if $stream.live}{$stream.live|date_format}{else}not set{/if} | Created {$stream.created|date_format} by {$stream.creator['$id']}
+	Publish date {if $stream.live}{$stream.live->sec|date_format}{else}not set{/if} | Created {$stream.created->sec|date_format:"%D %T"} by {$stream.creator['$id']}
 </div>
 {/foreach}
 {if $page > 1}
