@@ -69,7 +69,7 @@ $SMARTY->assign("total_message", $totalMessages);
 $SMARTY->assign("page", $page);
 $SMARTY->assign("nextpage", $hasNext);
 $SMARTY->assign("can_action", current_user_can("delete stream"));
-$SMARTY->assign("can_post", current_user_can("post updates"));
-$SMARTY->assign("can_publish", current_user_can("publish updates"));
+$SMARTY->assign("can_post", current_user_can("post message"));
+$SMARTY->assign("can_publish", current_user_can("publish message"));
 
 $SMARTY->display("publisher.tpl");

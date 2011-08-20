@@ -52,9 +52,9 @@ function current_user_can($name){
 	$permissions = array(
 		"create stream" => 2,
 		"delete stream" => 2, // includes edit stream
-		"post updates" => 0,
-		"publish updates" => 1,
-		"delete updates" => 1,
+		"post message" => 0,
+		"publish message" => 1,
+		"delete message" => 1,
 		"create user" => 2,
 		"delete user" => 2,
 	);

@@ -16,7 +16,7 @@ function handleRequest(){
 	global $streamID, $stream, $DB, $current_user;
 
 	// Publish update
-	if($_POST['type'] == "update" && current_user_can("post updates")){
+	if($_SERVER['REQUEST_METHOD'] == "POST" && $_POST['type'] == "update" && current_user_can("post message")){
 		$allowedKinds = array("message");
 		$kind = $_POST['kind'];
 		// Is the kind supported?
@@ -24,20 +24,24 @@ function handleRequest(){
 			return array("error" => "Invalid kind");
 		}
 		$published = false;
+		$publisher = null;
 		// Auto publish
-		if(in_array("autopublish", $stream['config']) && $stream['config']['autopublish']){
+		if(array_key_exists("auto publish", $stream['config']) && $stream['config']['autopublish']){
 			$published = true;
+			$publisher = $DB->users->createDBRef($current_user);
 		}
 		// Or the user have rights to self-publish
-		if(current_user_can("publish updates") && in_array("publish", $_POST) && $_POST['publish']){
+		if(current_user_can("publish message") && array_key_exists("publish", $_POST) && $_POST['publish']){
 			$published = true;
+			$publisher = $DB->users->createDBRef($current_user);
 		}
 		$saveData = array(
 			"creator" => $DB->users->createDBRef($current_user),
 			"time" => new MongoDate(),
 			"stream" => $DB->streams->createDBRef($stream),
 			"kind" => $kind,
-			"published" => $published
+			"published" => $published,
+			"publisher" => $publisher,
 		);
 		// per-kind save data
 		if($kind == "message"){
@@ -49,6 +53,27 @@ function handleRequest(){
 		// Save it
 		$DB->messages->insert($saveData);
 		return $saveData;
+	}else if(array_key_exists("act", $_GET)){
+		$id = $_GET['id'];
+		$message = $DB->messages->findOne(array("_id" => new MongoID($id)));
+		if(!$message){
+			return array("error" => "Invalid message ID.");
+		}
+		if($_GET['act'] == "publish" && current_user_can("publish message")){
+			$message['published'] = !$message['published'];
+			if($message['published']){
+				$message['publisher'] = $DB->users->createDBRef($current_user);
+			}
+			$DB->messages->save($message);
+			return $message;
+		}else if($_GET['act'] == "delete" && current_user_can("delete message")){
+			$DB->messages->remove(array("_id" => new MongoID($id)), array("justOne" => true));
+			return true;
+		}else{
+			return array(
+				"error" => "No/invalid action or no permission"
+			);
+		}
 	}else{
 		return array(
 			"error" => "No/invalid action or no permission"

@@ -1,10 +1,13 @@
 {extends "base.tpl"}
 {block "title"}{$stream.name} | Sora{/block}
 {block "body"}
+{function messageaction}
+<a href="publishserver.php?act=publish&stream={$stream._id}&id={$message._id}">{if $message.published}Unpublish <small>(was published by {$message.publisher['$id']})</small>{else}Publish{/if}</a> | <a href="publishserver.php?act=delete&stream={$stream._id}&id={$message._id}" onclick="return confirm('Delete this message?');">Delete</a>
+{/function}
 <h1>{$stream.name}</h1>
 <div id="messages" class="box">
 {foreach $messages as $message}
-{include file="stream.`$message.kind`.tpl"}
+{include file="stream.`$message.kind`.tpl" message=$message}
 {/foreach}
 {if $page > 1}
 <a href="?page={$page-1}">Prev page</a>
@@ -26,7 +29,6 @@ Page {$page} | {$total_message} items
 		{/if}
 		<input type="submit" value="Add">
 		<input type="hidden" name="type" value="update">
-		<input type="hidden" name="return ref" value="true">
 	</form>
 </div>
 {/if}
@@ -52,7 +54,7 @@ Page {$page} | {$total_message} items
 			</ul>
 			<input type="hidden" name="type" value="metadata">
 			<input type="submit" value="Save">
-			<input type="submit" name="delete" value="Delete" onclick="return confirm('Delete?')">
+			<input type="submit" name="delete" value="Delete" onclick="return confirm('Delete stream?')">
 		</form>
 	</fieldset>
 </div>
