@@ -5,9 +5,9 @@
 <div style="float: right;"><a href="publishserver.php?act=publish&stream={$stream._id}&id={$message._id}" class="btn">{if $message.published}Unpublish <small>(was published by {$message.publisher['$id']})</small>{else}Publish{/if}</a> <a href="publishserver.php?act=delete&stream={$stream._id}&id={$message._id}" onclick="return confirm('Delete this message?');" class="btn">Delete</a></div>
 {/function}
 {include "head.tpl"}
-<div class="container" style="margin-top: 40px;">
+<div class="container" style="margin-top: 60px;">
 <div class="page-header">
-	<h1>{$stream.name} <small><a href="../static/viewer/{$stream._id}.html">View client</a></small></h1>
+	<h1>{$stream.name} <small><a href="../static/viewer/{$stream._id}.html" target="_blank">View client</a></small></h1>
 </div>
 <div class="row">
 	<div id="messages" class="span11 column">
@@ -74,9 +74,12 @@
 				<div class="clearfix">
 					<div class="input">
 						<div class="input-prepend">
-							<span class="add-on {if $stream.config.autopublish|default:false}active{/if}">Publish {if $stream.config.autopublish|default:false or $can_publish}
-							<input type="checkbox" name="publish"{if $stream.config.autopublish|default:false} checked{/if}><br/>
-							{/if}</span>
+							<span class="add-on {if $stream.config.autopublish|default:false}active{/if}">
+								{if $stream.config.autopublish|default:false or $can_publish}
+								<label for="publish" style="display:inline;">Publish</label>
+								<input type="checkbox" id="publish" name="publish"{if $stream.config.autopublish|default:false} checked{/if}>
+								{/if}
+							</span>
 							<input class="xlarge" type="text" name="text">
 						</div>
 					</div>

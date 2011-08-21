@@ -1,7 +1,7 @@
 {extends "base.tpl"}
 {block body}
 {include "head.tpl"}
-<div class="container" style="margin-top: 40px;">
+<div class="container" style="margin-top: 60px;">
 	<div class="page-header">
 		<h1>Stream list</h1>
 	</div>
