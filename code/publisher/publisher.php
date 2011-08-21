@@ -46,6 +46,10 @@ if(array_key_exists("type", $_POST) && current_user_can("delete stream")){
 	}else{
 		die("Invalid save type!");
 	}
+	regenerate_html($stream);
+}
+if(array_key_exists("act", $_GET) && $_GET['act'] == "regenerate"){
+	regenerate_html($stream);
 }
 
 $messages = $DB->messages->find(array('stream.$id' => $stream['_id']));

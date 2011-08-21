@@ -2,61 +2,95 @@
 {block "title"}{$stream.name} | Sora{/block}
 {block "body"}
 {function messageaction}
-<a href="publishserver.php?act=publish&stream={$stream._id}&id={$message._id}">{if $message.published}Unpublish <small>(was published by {$message.publisher['$id']})</small>{else}Publish{/if}</a> | <a href="publishserver.php?act=delete&stream={$stream._id}&id={$message._id}" onclick="return confirm('Delete this message?');">Delete</a>
+<div style="float: right;"><a href="publishserver.php?act=publish&stream={$stream._id}&id={$message._id}" class="btn">{if $message.published}Unpublish <small>(was published by {$message.publisher['$id']})</small>{else}Publish{/if}</a> <a href="publishserver.php?act=delete&stream={$stream._id}&id={$message._id}" onclick="return confirm('Delete this message?');" class="btn">Delete</a></div>
 {/function}
-<h1>{$stream.name}</h1>
-<div id="messages" class="box">
-{foreach $messages as $message}
-{include file="stream.`$message.kind`.tpl" message=$message}
-{/foreach}
-{if $page > 1}
-<a href="?page={$page-1}">Prev page</a>
-{/if}
-Page {$page} | {$total_message} items
-{if $nextpage}
-<a href="?page={$page+1}">Next page</a>
-{/if}
+{include "head.tpl"}
+<div class="container" style="margin-top: 40px;">
+<div class="page-header">
+	<h1>{$stream.name} <small><a href="../static/viewer/{$stream._id}.html">View client</a></small></h1>
 </div>
-{if $can_post}
-<div id="postform" class="box">
-	<form action="publishserver.php?stream={$stream._id}" method="post">
-		<strong>Kind:</strong> <select name="kind">
-			<option value="message">Text</option>
-		</select><br />
-		<input type="text" name="text"><br />
-		{if $stream.config.autopublish|default:false or $can_publish}
-		<input type="checkbox" name="publish"{if $stream.config.autopublish|default:false} checked{/if}> Publish<br/>
-		{/if}
-		<input type="submit" value="Add">
-		<input type="hidden" name="type" value="update">
-	</form>
-</div>
-{/if}
-{if $can_action}
-<div id="action" class="box">
-	<h2>Stream</h2>
-	<fieldset id="config">
-		<legend for="config">Configuration</legend>
-		<form action="" method="POST">
-			<ul>
-				<li><input type="checkbox" name="autopublish" {if $stream.config.autopublish|default:false}checked{/if}> Auto publish new items</li>
-			</ul>
-			<input type="hidden" name="type" value="config">
-			<input type="submit" value="Save">
+<div class="row">
+	<div id="messages" class="span11 column">
+		{foreach $messages as $message}
+		{include file="stream.`$message.kind`.tpl" message=$message}
+		{/foreach}
+		<div class="pagination"> 
+			<ul> 
+				<li class="prev {if $page == 1}disabled{/if}"><a href="{if $page == 1}#{else}?page={$page-1}{/if}">&larr; Previous</a></li>
+				<li class="active"><a href="#">{$page}</a></li> 
+				<li class="next {if !$nextpage}disabled{/if}"><a href="{if !$nextpage}#{else}?page={$page+1}{/if}">Next &rarr;</a></li> 
+			</ul> 
+		</div>
+	</div>
+	{if $can_action}
+	<div id="action" class="span5 column">
+		<form action="" method="POST" class="form-stacked">
+			<fieldset id="config">
+				<legend for="config">Configuration</legend>
+				<div class="clearfix">
+					<ul class="inputs-list">
+						<li>
+							<label for="autopublish">
+								<input type="checkbox" id="autopublish" name="autopublish" {if $stream.config.autopublish|default:false}checked{/if}>
+								<span>Automatically publish new items</span>
+							</label>
+					</ul>
+				</div>
+				<input type="hidden" name="type" value="config">
+				<input type="submit" value="Save" class="btn primary">
+				<a href="publisher.php?stream={$stream._id}&act=regenerate" class="btn">Regenerate client page</a>
+			</fieldset>
 		</form>
-	</fieldset>
-	<fieldset id="metadata">
-		<legend for="metadata">Metadata</legend>
-		<form action="" method="POST">
-			<ul>
-				<li><strong>Title:</strong> <input type="text" name="name" value="{$stream.name}"></li>
-				<li><strong>Live date/time:</strong> <input type="text" name="live" value="{$stream.live}"></li>
-			</ul>
-			<input type="hidden" name="type" value="metadata">
-			<input type="submit" value="Save">
-			<input type="submit" name="delete" value="Delete" onclick="return confirm('Delete stream?')">
+		<form action="" method="POST" class="form-stacked">
+			<fieldset id="metadata">
+				<legend for="metadata">Metadata</legend>
+					<div class="clearfix">
+						<label for="">Title</label>
+						<div class="input"><input type="text" name="name" value="{$stream.name}"></div>
+					</div>
+					<div class="clearfix">
+						<label for="">Live date/time</label>
+						<div class="input"><input type="text" name="live" value="{$stream.live}"></div>
+					</div>
+					<input type="hidden" name="type" value="metadata">
+					<input type="submit" value="Save" class="btn primary">
+					<input type="submit" name="delete" value="Delete" onclick="return confirm('Delete stream?')" class="btn">
+				</form>
+			</fieldset>
 		</form>
-	</fieldset>
+	</div>
+	{/if}
+	{if $can_post}
+	<div id="postform" class="span11 column">
+		<form action="publishserver.php?stream={$stream._id}" method="post" class="form-stacked">
+			<fieldset>
+				<legend>Add message</legend>
+				<div class="clearfix">
+					<label for="kind box">Kind:</label> 
+					<div class="input"><select name="kind" id="kindbox">
+						<option value="message">Text</option>
+					</select></div>
+				</div>
+				<div class="clearfix">
+					<div class="input">
+						<div class="input-prepend">
+							<span class="add-on {if $stream.config.autopublish|default:false}active{/if}">Publish {if $stream.config.autopublish|default:false or $can_publish}
+							<input type="checkbox" name="publish"{if $stream.config.autopublish|default:false} checked{/if}><br/>
+							{/if}</span>
+							<input class="xlarge" type="text" name="text">
+						</div>
+					</div>
+				</div>
+				<div class="actions">
+					<input type="submit" value="Add" class="btn primary">
+				</div>
+				<input type="hidden" name="type" value="update">
+			</fieldset>
+		</form>
+	</div>
+	{/if}
 </div>
-{/if}
+
+</div>
+</div>
 {/block}

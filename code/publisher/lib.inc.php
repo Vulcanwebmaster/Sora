@@ -64,3 +64,19 @@ function current_user_can($name){
 		return $permissions[$name] <= $current_user['role'];
 	}
 }
+
+/**
+ * Regenerate viewer HTML from template
+ */
+function regenerate_html($stream){
+	if(!$stream) throw new Exception("No stream data");
+	$SMARTY = new Smarty();
+	$SMARTY->setTemplateDir(dirname(__FILE__)."/templates");
+	$SMARTY->setCompileDir(dirname(__FILE__)."/smarty/templates_c");
+	$SMARTY->setCacheDir(dirname(__FILE__)."/smarty/cache");
+	$SMARTY->setConfigDir(dirname(__FILE__)."/smarty/configs");
+	$SMARTY->assign("static", "/static");
+	$SMARTY->assign("stream", $stream);
+	$out = $SMARTY->fetch("viewer.tpl");
+	file_put_contents("../../static/viewer/".$stream['_id'].".html", $out);
+}

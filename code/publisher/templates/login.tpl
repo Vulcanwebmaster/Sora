@@ -13,18 +13,32 @@ $(function(){
 </script>
 {/block}
 {block "body"}
-<div id="login">
-<h1>Login</h1>
-{if isset($error)}
-<div class="error">{$error}</div>
-{/if}
 <form action="login.php" method="POST">
-	<table>
-		<tr><th><label for="username">Username</label></th><td><input type="text" name="username" id="username"></td></tr>
-		<tr><th><label for="password">Password</label></th><td><input type="password" name="password" id="password"></td></tr>
-	</table>
-	<noscript>Cannot login without JavaScript</noscript>
-	<input type="submit" value="Login" />
-</form>
+<div id="login" class="modal">
+	<div class="modal-header">
+		<h3>Login</h3>
+	</div>
+	<div class="modal-body"> 
+		{if isset($error)}
+		<div class="alert-message error">{$error}</div>
+		{/if}
+		<div class="clearfix">
+			<label for="username">Username</label>
+			<div class="input"><input type="text" name="username" id="username"></div>
+		</div>
+		<div class="clearfix">
+			<label for="password">Password</label>
+			<div class="input"><input type="password" name="password" id="password"></div>
+		</div>
+		<noscript>
+			<div class="alert-message error"> 
+				<p>Cannot login without JavaScript</p> 
+			</div> 
+		</noscript>
+	</div>
+	<div class="modal-footer"> 
+		<input type="submit" value="Login" class="btn primary" />
+	</div>
 </div>
+</form>
 {/block}

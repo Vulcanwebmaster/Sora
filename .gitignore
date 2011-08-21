@@ -1,3 +1,4 @@
 code/publisher/smarty/*/*
 static/soraindex
 static/index.html
+static/viewer/*.html

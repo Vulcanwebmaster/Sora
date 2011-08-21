@@ -7,13 +7,15 @@ if(!is_logged_in()){
 
 // add new stream
 if(array_key_exists("title", $_POST) && trim($_POST['title']) != ""){
-	$DB->streams->insert(array(
+	$stream = array(
 		"config" => array(),
 		"created" => new MongoDate(),
 		"live" => null,
 		"name" => $_POST['title'],
 		"creator" => $DB->users->createDBRef($current_user),
-	));
+	);
+	$DB->streams->insert($stream);
+	regenerate_html($stream);
 }
 
 $per_page = 20;
