@@ -12,6 +12,22 @@ if(!$stream){
 	die();
 }
 
+function pushEvent($msg){
+	global $DB, $config, $streamID;
+	$allowed = array("_id", "kind", "text", "time", "creator");
+	$out = array();
+	foreach($allowed as $allow){
+		$out[$allow] = $msg[$allow];
+	}
+	$out['creator'] = $DB->users->getDBRef($out['creator']);
+	$out['creator'] = $out['creator']['name'];
+	$out['_id'] = $out['_id']->{'$id'};
+	if($msg['published']){
+		file_get_contents($config['viewerhost'].$streamID."?key=".rawurlencode($config['viewerkey'])."&type=message&data=".rawurlencode(json_encode($out)));
+	}
+	file_get_contents($config['publisherhost'].$streamID."?key=".rawurlencode($config['publisherkey'])."&type=message&data=".rawurlencode(json_encode($out)));
+}
+
 function handleRequest(){
 	global $streamID, $stream, $DB, $current_user;
 
@@ -52,6 +68,7 @@ function handleRequest(){
 		}
 		// Save it
 		$DB->messages->insert($saveData);
+		pushEvent($saveData);
 		return $saveData;
 	}else if(array_key_exists("act", $_GET)){
 		$id = $_GET['id'];

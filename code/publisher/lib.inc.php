@@ -3,7 +3,7 @@ session_name("sora");
 session_set_cookie_params(30*24*3600);
 session_start();
 
-include "../config.inc.php";
+include "../../config.inc.php";
 /**
  * MongoDB connection
  */
@@ -21,6 +21,7 @@ $SMARTY->setCacheDir(dirname(__FILE__)."/smarty/cache");
 $SMARTY->setConfigDir(dirname(__FILE__)."/smarty/configs");
 $SMARTY->assign("static", "/static");
 $SMARTY->assign("DB", $DB);
+$SMARTY->assign("server", $config['publisherurl']);
 
 /**
  * Check the login status of current visitor
@@ -69,6 +70,7 @@ function current_user_can($name){
  * Regenerate viewer HTML from template
  */
 function regenerate_html($stream){
+	global $config;
 	if(!$stream) throw new Exception("No stream data");
 	$SMARTY = new Smarty();
 	$SMARTY->setTemplateDir(dirname(__FILE__)."/templates");
@@ -77,6 +79,7 @@ function regenerate_html($stream){
 	$SMARTY->setConfigDir(dirname(__FILE__)."/smarty/configs");
 	$SMARTY->assign("static", "/static");
 	$SMARTY->assign("stream", $stream);
+	$SMARTY->assign("server", $config['viewerurl']);
 	$out = $SMARTY->fetch("viewer.tpl");
 	file_put_contents("../../static/viewer/".$stream['_id'].".html", $out);
 }

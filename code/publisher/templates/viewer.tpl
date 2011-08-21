@@ -4,12 +4,15 @@
 	<meta charset="UTF-8">
 	<title>{$stream.name}</title>
 	<script src="{$static}/jquery-1.6.2.min.js"></script>
+	<script src="{$server}socket.io/socket.io.js"></script>
 	<script>
 var stream = {
-	"id": "{$stream._id}"
+	"id": "{$stream._id}",
+	"server": "{$server}"
 };
 {literal}
 var renderedEventsId = [];
+var ioStream = io.connect(stream.server+stream.id);
 function renderEvent(d){
 	if(renderedEventsId.indexOf(d['_id']) != -1) return;
 	renderedEventsId.push(d['_id']);
@@ -24,6 +27,9 @@ function updateStream(){
 		$.each(d, function(k,v){renderEvent(v);});
 	});
 }
+ioStream.on("message", function(d){
+	renderEvent(d);
+});
 $(function(){
 	updateStream();
 });

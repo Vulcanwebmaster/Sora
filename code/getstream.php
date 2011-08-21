@@ -3,7 +3,10 @@ chdir("publisher");
 include "lib.inc.php";
 header("Content-Type: text/javascript");
 
-$messages = $DB->messages->find(array('stream.$id' => new MongoId($_GET['stream']), 'published' => true), array("_id", "kind", "text", "time", "creator"));
+$messages = $DB->messages->find(array(
+	'stream.$id' => new MongoId($_GET['stream']),
+	'published' => true
+), array("_id", "kind", "text", "time", "creator"));
 $messages->sort(array("time" => -1));
 $messages->limit(100);
 
