@@ -30,7 +30,7 @@ function pushEvent($msg){
 }
 
 function handleRequest(){
-	global $streamID, $stream, $DB, $current_user;
+	global $streamID, $stream, $DB, $current_user, $config;
 
 	// Publish update
 	if($_SERVER['REQUEST_METHOD'] == "POST" && $_POST['type'] == "update" && current_user_can("post message")){
@@ -84,8 +84,17 @@ function handleRequest(){
 			}
 			$DB->messages->save($message);
 			pushEvent($message);
+			if(!$message['published']){
+				$msg = array("delete" => $id);
+				file_get_contents($config['viewerhost'].$streamID."?key=".rawurlencode($config['viewerkey'])."&type=message&data=".rawurlencode(json_encode($msg)));
+			}
 			return $message;
 		}else if($_GET['act'] == "delete" && current_user_can("delete message")){
+			$msg = array("delete" => $id);
+			if($message['published']){
+				file_get_contents($config['viewerhost'].$streamID."?key=".rawurlencode($config['viewerkey'])."&type=message&data=".rawurlencode(json_encode($msg)));
+			}
+			file_get_contents($config['publisherhost'].$streamID."?key=".rawurlencode($config['publisherkey'])."&type=message&data=".rawurlencode(json_encode($msg)));
 			$DB->messages->remove(array("_id" => new MongoID($id)), array("justOne" => true));
 			return true;
 		}else{
