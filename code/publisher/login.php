@@ -44,6 +44,6 @@ if(is_logged_in()){
 	die();
 }
 
-$_SESSION['challenge'] = uniqid("", true);
+$_SESSION['challenge'] = uniqid(mt_rand(1,10000000000), true);
 $SMARTY->assign("challenge", $_SESSION['challenge']);
 $SMARTY->display("login.tpl");

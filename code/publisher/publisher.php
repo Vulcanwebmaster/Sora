@@ -61,6 +61,7 @@ if(!$page){
 $per_page = 100;
 $messages->skip(($page-1)*$per_page);
 $messages->limit($per_page);
+
 $totalMessages = $DB->messages->count(array('stream.$id' => $stream['_id']));
 $hasNext = false;
 if($page+1 < ceil($totalMessages / $per_page)){

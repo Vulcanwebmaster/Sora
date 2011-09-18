@@ -1,8 +1,34 @@
 {extends "base.tpl"}
 {block "title"}{$stream.name} | Sora{/block}
+{block "head"}
+<script src="{$server}socket.io/socket.io.js"></script>
+<script>
+var ioStream = io.connect("{$server}{$stream._id}")
+ioStream.on("message", function(d){
+	var e = $("#tmpl_"+d.kind).html();
+	$.each(d, function(k,v){
+		if(k == "time") v = new Date(v['sec']).toLocaleTimeString();
+		else if(k == "creator") v = v['$id'];
+		e = e.replace(new RegExp("%"+k+"%", "g"), v);
+	});
+	if(d['published']){
+		publishState = "Unpublish <small>(was published by "+d.publisher['$id']+")</small>";
+	}else{
+		publishState = "Publish";
+	}
+	e = e.replace(/%msgaction%/d, '<div style="float: right;"><a href="publishserver.php?act=publish&stream={$stream._id}&id='+d['_id']['$id']+'" class="btn publishToggle">'+publishState+'</a> <a href="publishserver.php?act=delete&stream={$stream._id}&id='+d['_id']['$id']+'" onclick="return confirm(\'Delete this message?\');" class="btn">Delete</a></div>');
+	e = $(e);
+	e.hide().prependTo("#messages").slideDown();
+});
+</script>
+{/block}
 {block "body"}
 {function messageaction}
+{if $message}
 <div style="float: right;"><a href="publishserver.php?act=publish&stream={$stream._id}&id={$message._id}" class="btn">{if $message.published}Unpublish <small>(was published by {$message.publisher['$id']})</small>{else}Publish{/if}</a> <a href="publishserver.php?act=delete&stream={$stream._id}&id={$message._id}" onclick="return confirm('Delete this message?');" class="btn">Delete</a></div>
+{else}
+%msgaction%
+{/if}
 {/function}
 {include "head.tpl"}
 <div class="container" style="margin-top: 60px;">
@@ -93,7 +119,11 @@
 	</div>
 	{/if}
 </div>
-
+<div style="display: none;">
+	<div id="tmpl_message">
+		{include file="stream.message.tpl" message=null}
+	</div>
+</div>
 </div>
 </div>
 {/block}

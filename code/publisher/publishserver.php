@@ -25,7 +25,8 @@ function pushEvent($msg){
 	if($msg['published']){
 		file_get_contents($config['viewerhost'].$streamID."?key=".rawurlencode($config['viewerkey'])."&type=message&data=".rawurlencode(json_encode($out)));
 	}
-	file_get_contents($config['publisherhost'].$streamID."?key=".rawurlencode($config['publisherkey'])."&type=message&data=".rawurlencode(json_encode($out)));
+	
+	file_get_contents($config['publisherhost'].$streamID."?key=".rawurlencode($config['publisherkey'])."&type=message&data=".rawurlencode(json_encode($msg)));
 }
 
 function handleRequest(){
@@ -82,6 +83,7 @@ function handleRequest(){
 				$message['publisher'] = $DB->users->createDBRef($current_user);
 			}
 			$DB->messages->save($message);
+			pushEvent($message);
 			return $message;
 		}else if($_GET['act'] == "delete" && current_user_can("delete message")){
 			$DB->messages->remove(array("_id" => new MongoID($id)), array("justOne" => true));
