@@ -1,4 +1,4 @@
-<div class="alert-message block-message {if $message and $message.published}published{else if $message}notpublish{/if}">
+<div class="message message-{$message['_id']} alert-message block-message {if $message and $message.published}published{else if $message}notpublish{/if}" data-data='{htmlentities(json_encode($message))}'>
 	<p>{$message.text|default:"%text%"}</p>
 	{call messageaction message=$message}
 	<div class="twipsy below"> 

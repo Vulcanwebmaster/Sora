@@ -18,7 +18,33 @@ ioStream.on("message", function(d){
 	}
 	e = e.replace(/%msgaction%/d, '<div style="float: right;"><a href="publishserver.php?act=publish&stream={$stream._id}&id='+d['_id']['$id']+'" class="btn publishToggle">'+publishState+'</a> <a href="publishserver.php?act=delete&stream={$stream._id}&id='+d['_id']['$id']+'" onclick="return confirm(\'Delete this message?\');" class="btn">Delete</a></div>');
 	e = $(e);
-	e.hide().prependTo("#messages").slideDown();
+	if(d['published']){
+		e.addClass("published");
+	}else{
+		e.addClass("notpublish");
+	}
+	e.data("data", d).addClass("message-"+d['_id']['$id']);
+	oldmsg = $("#messages .message-"+d['_id']['$id']);
+	if(oldmsg.length > 0){
+		// replace it...
+		oldmsg.replaceWith(e);
+	}else{
+		afterHere = null;
+		$("#messages .message").each(function(){
+			if($(this).data("data").time.sec > d.time.sec){
+				afterHere = this;
+			}else{
+				return false;
+			}
+		})
+		if(afterHere){
+			e.insertAfter(afterHere);
+		}else{
+			e.prependTo("#messages");
+		}
+	}
+	// crop
+	$("#messages .message:gt(100)").remove()
 });
 </script>
 {/block}
