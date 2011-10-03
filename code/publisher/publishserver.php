@@ -14,9 +14,10 @@ if(!$stream){
 
 function pushEvent($msg){
 	global $DB, $config, $streamID;
-	$allowed = array("_id", "kind", "text", "time", "creator");
+	$allowed = array("_id", "text", "time", "creator", "file");
 	$out = array();
 	foreach($allowed as $allow){
+		if(!isset($msg[$allow])) continue;
 		$out[$allow] = $msg[$allow];
 	}
 	$out['creator'] = $DB->users->getDBRef($out['creator']);
@@ -35,11 +36,6 @@ function handleRequest(){
 	// Publish update
 	if($_SERVER['REQUEST_METHOD'] == "POST" && $_POST['type'] == "update" && current_user_can("post message")){
 		$allowedKinds = array("message");
-		$kind = $_POST['kind'];
-		// Is the kind supported?
-		if(!in_array($kind, $allowedKinds)){
-			return array("error" => "Invalid kind");
-		}
 		$published = false;
 		$publisher = null;
 		// Auto publish
@@ -56,16 +52,21 @@ function handleRequest(){
 			"creator" => $DB->users->createDBRef($current_user),
 			"time" => new MongoDate(),
 			"stream" => $DB->streams->createDBRef($stream),
-			"kind" => $kind,
 			"published" => $published,
 			"publisher" => $publisher,
+			"text" => $_POST['text']
 		);
-		// per-kind save data
-		if($kind == "message"){
-			if(trim($_POST['text']) == ""){
-				return array("error" => "Enter message");
-			}
-			$saveData['text'] = $_POST['text'];
+		if(trim($_POST['text']) == "" && !is_uploaded_file($_FILES['pic']['tmp_name'])){
+			return array("error" => "Enter message or image");
+		}
+		if(is_uploaded_file($_FILES['pic']['tmp_name'])){
+			// Get the file extension
+			preg_match('~\.([a-zA-Z0-9]+)$~', $_FILES['pic']['name'], $extension);
+			$fn = uniqid().$extension[0];
+			// Then move it to the upload path
+			// TODO: Make this more scalable, such as support for S3
+			move_uploaded_file($_FILES['pic']['tmp_name'], $config['uploadpath'].$fn);
+			$saveData['file'] = $fn;
 		}
 		// Save it
 		$DB->messages->insert($saveData);
@@ -77,6 +78,7 @@ function handleRequest(){
 		if(!$message){
 			return array("error" => "Invalid message ID.");
 		}
+		// Toggle publish status
 		if($_GET['act'] == "publish" && current_user_can("publish message")){
 			$message['published'] = !$message['published'];
 			if($message['published']){
@@ -89,12 +91,16 @@ function handleRequest(){
 				file_get_contents($config['viewerhost'].$streamID."?key=".rawurlencode($config['viewerkey'])."&type=message&data=".rawurlencode(json_encode($msg)));
 			}
 			return $message;
+		// Delete message
 		}else if($_GET['act'] == "delete" && current_user_can("delete message")){
 			$msg = array("delete" => $id);
 			if($message['published']){
 				file_get_contents($config['viewerhost'].$streamID."?key=".rawurlencode($config['viewerkey'])."&type=message&data=".rawurlencode(json_encode($msg)));
 			}
 			file_get_contents($config['publisherhost'].$streamID."?key=".rawurlencode($config['publisherkey'])."&type=message&data=".rawurlencode(json_encode($msg)));
+			if(isset($message['file'])){
+				unlink($config['uploadpath'].$message['file']);
+			}
 			$DB->messages->remove(array("_id" => new MongoID($id)), array("justOne" => true));
 			return true;
 		}else{

@@ -15,4 +15,9 @@ $config = array(
 	// MUST be accessible outside of your firewall
 	"viewerurl" => "http://sora.whs.in.th:4500/",
 	"viewerkey" => "soraserver",
+	// Full path to the static/images folder WITH trailing slash
+	"uploadpath" => "/var/www/static/images/",
+	"viewerpath" => "/var/www/static/viewer/",
+	// /viewer/ /images/ are appended to the staticurl.
+	"staticurl" => "http://sora.whs.in.th/static/",
 );

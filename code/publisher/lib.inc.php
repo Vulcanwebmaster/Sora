@@ -2,6 +2,7 @@
 session_name("sora");
 session_set_cookie_params(30*24*3600);
 session_start();
+error_reporting(E_ALL ^ E_NOTICE);
 
 include "../../config.inc.php";
 /**
@@ -19,7 +20,7 @@ $SMARTY->setTemplateDir(dirname(__FILE__)."/templates");
 $SMARTY->setCompileDir(dirname(__FILE__)."/smarty/templates_c");
 $SMARTY->setCacheDir(dirname(__FILE__)."/smarty/cache");
 $SMARTY->setConfigDir(dirname(__FILE__)."/smarty/configs");
-$SMARTY->assign("static", "/static");
+$SMARTY->assign("static", $config['staticurl']);
 $SMARTY->assign("DB", $DB);
 $SMARTY->assign("server", $config['publisherurl']);
 
@@ -81,5 +82,5 @@ function regenerate_html($stream){
 	$SMARTY->assign("stream", $stream);
 	$SMARTY->assign("server", $config['viewerurl']);
 	$out = $SMARTY->fetch("viewer.tpl");
-	file_put_contents("../../static/viewer/".$stream['_id'].".html", $out);
+	file_put_contents($config['viewerpath'].$stream['_id'].".html", $out);
 }

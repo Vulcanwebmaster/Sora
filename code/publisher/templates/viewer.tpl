@@ -8,7 +8,8 @@
 	<script>
 var stream = {
 	"id": "{$stream._id}",
-	"server": "{$server}"
+	"server": "{$server}",
+	"static": "{$static}/images/",
 };
 {literal}
 var ioStream = io.connect(stream.server+stream.id);
@@ -19,7 +20,12 @@ function renderEvent(d){
 		tmpl = $("#tmpl_message").html();
 		tmpl = $(tmpl);
 		tmpl.data("data", d).addClass("message-"+d['_id']);
-		$(".message-in", tmpl).html(d['text']);
+		if(d['text']){
+			$(".message-in", tmpl).html(d['text']);
+		}
+		if(d['file']){
+			$(".message-in", tmpl).prepend("<div><img src='"+stream['static']+d['file']+"'></div>");
+		}
 		$(".metadata", tmpl).text(new Date((d['time']['sec']*1000)+Math.floor(d['time']['usec']/1000)).toLocaleTimeString() + " by "+d['creator']);
 		// find target position
 		oldmsg = $("#messagelist .message-"+d['_id']);

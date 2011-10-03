@@ -8,7 +8,7 @@ ioStream.on("message", function(d){
 	if(d['delete']){
 		$("#messages .message-"+d['delete']).remove();
 	}else{
-		var e = $("#tmpl_"+d.kind).html();
+		var e = $("#tmpl_message").html();
 		$.each(d, function(k,v){
 			if(k == "time") v = new Date(v['sec']).toLocaleTimeString();
 			else if(k == "creator") v = v['$id'];
@@ -25,6 +25,12 @@ ioStream.on("message", function(d){
 			e.addClass("published");
 		}else{
 			e.addClass("notpublish");
+		}
+		if(!d['file']){
+			$(".msgimg", e).remove();
+		}
+		if(!d['text']){
+			$(".msgtext", e).remove();
 		}
 		e.data("data", d).addClass("message-"+d['_id']['$id']);
 		oldmsg = $("#messages .message-"+d['_id']['$id']);
@@ -60,15 +66,27 @@ ioStream.on("message", function(d){
 %msgaction%
 {/if}
 {/function}
+{function message}
+<div class="message message-{$message['_id']} alert-message block-message {if $message and $message.published}published{else if $message}notpublish{/if}" data-data='{htmlentities(json_encode($message))}'>
+	{if $message.file or $message == null}<p class="msgimg"><img src="{$static}images/{$message.file|default:"%file%"}"></p>{/if}
+	{if $message.text or $message == null}<p class="msgtext">{$message.text|default:"%text%"}</p>{/if}
+	{call messageaction message=$message}
+	<div class="twipsy below"> 
+		<div class="twipsy-arrow"></div> 
+		<div class="twipsy-inner">by <em>{$message.creator['$id']|default:"%creator%"}</em> on {$message.time->sec|date_format:"%T"|default:"%time%"}</div> 
+	</div> 
+	<div class="clearfix"></div>
+</div>
+{/function}
 {include "head.tpl"}
 <div class="container" style="margin-top: 60px;">
 <div class="page-header">
-	<h1>{$stream.name} <small><a href="../static/viewer/{$stream._id}.html" target="_blank">View client</a></small></h1>
+	<h1>{$stream.name} <small><a href="{$static}viewer/{$stream._id}.html" target="_blank">View client</a></small></h1>
 </div>
 <div class="row">
 	<div id="messages" class="span11 column">
 		{foreach $messages as $message}
-		{include file="stream.`$message.kind`.tpl" message=$message}
+		{message message=$message}
 		{/foreach}
 		<div class="pagination"> 
 			<ul> 
@@ -118,14 +136,13 @@ ioStream.on("message", function(d){
 	{/if}
 	{if $can_post}
 	<div id="postform" class="span11 column">
-		<form action="publishserver.php?stream={$stream._id}" method="post" class="form-stacked">
+		<form action="publishserver.php?stream={$stream._id}" enctype="multipart/form-data" method="post" class="form-stacked">
 			<fieldset>
 				<legend>Add message</legend>
 				<div class="clearfix">
-					<label for="kind box">Kind:</label> 
-					<div class="input"><select name="kind" id="kindbox">
-						<option value="message">Text</option>
-					</select></div>
+					<div class="input">
+						<input class="xlarge" type="file" name="pic">
+					</div>
 				</div>
 				<div class="clearfix">
 					<div class="input">
@@ -151,7 +168,7 @@ ioStream.on("message", function(d){
 </div>
 <div style="display: none;">
 	<div id="tmpl_message">
-		{include file="stream.message.tpl" message=null}
+		{message message=null}
 	</div>
 </div>
 </div>
