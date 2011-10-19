@@ -56,6 +56,14 @@ ioStream.on("message", function(d){
 		$("#messages .message:gt(100)").remove()
 	}
 });
+$(function(){
+	$("#postform form").submit(function(){
+		$.post($(this).attr("action"), $(this).serialize());
+		$("input[name=text]", this).val("");
+		$("input[name=pic]", this).val("");
+		return false;
+	})
+})
 </script>
 {/block}
 {block "body"}
