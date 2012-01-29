@@ -1,0 +1,46 @@
+body{
+	margin:0;
+	padding:0;
+	font-family: Helvetica;
+	font-size: 12pt;
+	margin-bottom: 35px;
+	background: black;
+}
+.message{
+	background: white;
+	padding: 5px;
+	border-bottom: #aaa solid 1px;
+}
+.message:nth-child(odd){
+	background: #eee;
+}
+.message img{
+	max-width: 300px;
+	max-height: 300px;
+	display: block;
+	margin: auto;
+	margin-bottom: 10px;
+}
+.metadata{
+	color: #aaa;
+	font-size: 10pt;
+}
+#footer{
+	position: fixed;
+	bottom: 0px;
+	padding: 10px;
+	width: 100%;
+	background: #555;
+	background: rgba(85,85,85,0.9);
+	color: white;
+	border-top: #555 solid 2px;
+}
+#streamname{
+	text-align: center;
+	font-size: 10pt;
+}
+a{
+	color: #58d;
+	text-decoration: none;
+	font-size: 10pt;
+}

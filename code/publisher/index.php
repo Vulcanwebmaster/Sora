@@ -18,26 +18,14 @@ if(array_key_exists("title", $_POST) && trim($_POST['title']) != ""){
 	regenerate_html($stream);
 }
 
-$per_page = 20;
-if(array_key_exists("page", $_GET))
-	$curPage = ((int) $_GET['page'])-1;
-else
-	$curPage = 0;
-
 $q = $DB->streams->find()->sort(array("created" => -1));
-$q->skip($curPage * $per_page);
-$q->limit($per_page);
 
 $SMARTY->assign("streams", $q);
-$SMARTY->assign("page", $curPage+1);
-$cnt = $DB->streams->count();
-$SMARTY->assign("streamcount", $cnt);
-// has next page?
-$hasNext = false;
-if($curPage+1 < ceil($cnt / $per_page)){
-	$hasNext = true;
-}
-$SMARTY->assign("nextpage", $hasNext);
 $SMARTY->assign("can_create", current_user_can("create stream"));
 
-$SMARTY->display("streamlist.tpl");
+$SMARTY->assign("can_action", current_user_can("delete stream"));
+$SMARTY->assign("can_post", current_user_can("post message"));
+$SMARTY->assign("can_publish", current_user_can("publish message"));
+$SMARTY->assign("can_delete", current_user_can("delete message"));
+
+$SMARTY->display("publisher.tpl");

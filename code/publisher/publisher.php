@@ -37,10 +37,6 @@ if(array_key_exists("type", $_POST) && current_user_can("delete stream")){
 			die();
 		}else{
 			$stream['name'] = $_POST['name'];
-			if(trim($_POST['live']) != "")
-				$stream['live'] = new MongoDate((int)$_POST['live']);
-			else
-				$stream['live'] = null;
 			$DB->streams->save($stream);
 		}
 	}else{
@@ -61,6 +57,22 @@ if(!$page){
 $per_page = 100;
 $messages->skip(($page-1)*$per_page);
 $messages->limit($per_page);
+$messages = iterator_to_array($messages, false);
+
+require_once "mustache.php";
+$m = new Mustache;
+foreach($messages as $k=>$message){
+	$message['creator'] = $message['creator']['$id'];
+	$message['time'] = date("j/n/y g:i:s A", $message['time']->sec);
+	$message = array_merge($message, array(
+		"static" => $config['staticurl'],
+		"can_action" => current_user_can("delete stream"),
+		"can_post" => current_user_can("post message"),
+		"can_publish" => current_user_can("publish message"),
+		"can_delete" => current_user_can("delete message"),
+	));
+	$messages[$k] = $m->render(file_get_contents("templates/message.ms"), $message);
+}
 
 $totalMessages = $DB->messages->count(array('stream.$id' => $stream['_id']));
 $hasNext = false;
@@ -76,5 +88,6 @@ $SMARTY->assign("nextpage", $hasNext);
 $SMARTY->assign("can_action", current_user_can("delete stream"));
 $SMARTY->assign("can_post", current_user_can("post message"));
 $SMARTY->assign("can_publish", current_user_can("publish message"));
+$SMARTY->assign("can_delete", current_user_can("delete message"));
 
-$SMARTY->display("publisher.tpl");
+$SMARTY->display("messages.tpl");

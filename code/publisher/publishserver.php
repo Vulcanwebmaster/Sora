@@ -14,20 +14,22 @@ if(!$stream){
 
 function pushEvent($msg){
 	global $DB, $config, $streamID;
-	$allowed = array("_id", "text", "time", "creator", "file");
+	$allowed = array("_id", "text", "time", "creator", "file", "published");
 	$out = array();
 	foreach($allowed as $allow){
 		if(!isset($msg[$allow])) continue;
 		$out[$allow] = $msg[$allow];
 	}
-	$out['creator'] = $DB->users->getDBRef($out['creator']);
-	$out['creator'] = $out['creator']['name'];
 	$out['_id'] = $out['_id']->{'$id'};
 	if($msg['published']){
-		file_get_contents($config['viewerhost'].$streamID."?key=".rawurlencode($config['viewerkey'])."&type=message&data=".rawurlencode(json_encode($out)));
+		$out2 = $out;
+		$out2['creator'] = $DB->users->getDBRef($out['creator']);
+		$out2['creator'] = $out2['creator']['name'];
+			file_get_contents($config['viewerhost'].$streamID."?key=".rawurlencode($config['viewerkey'])."&type=message&data=".rawurlencode(json_encode($out2)));
 	}
-	
-	file_get_contents($config['publisherhost'].$streamID."?key=".rawurlencode($config['publisherkey'])."&type=message&data=".rawurlencode(json_encode($msg)));
+	$out['creator'] = $out['creator']['$id'];
+	$out['time'] = date("j/n/y g:i:s A", $out['time']->sec);
+	file_get_contents($config['publisherhost'].$streamID."?key=".rawurlencode($config['publisherkey'])."&type=message&data=".rawurlencode(json_encode($out)));
 }
 
 function handleRequest(){
@@ -39,7 +41,7 @@ function handleRequest(){
 		$published = false;
 		$publisher = null;
 		// Auto publish
-		if(array_key_exists("auto publish", $stream['config']) && $stream['config']['autopublish']){
+		if(array_key_exists("autopublish", $stream['config']) && $stream['config']['autopublish']){
 			$published = true;
 			$publisher = $DB->users->createDBRef($current_user);
 		}

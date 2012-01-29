@@ -5,6 +5,7 @@
 	<title>{$stream.name}</title>
 	<script src="{$static}/jquery-1.6.2.min.js"></script>
 	<script src="{$server}socket.io/socket.io.js"></script>
+	<link rel="stylesheet" href="{$static}/viewer.css">
 	<script>
 var stream = {
 	"id": "{$stream._id}",
@@ -13,6 +14,10 @@ var stream = {
 };
 {literal}
 var ioStream = io.connect(stream.server+stream.id);
+function replaceURLWithHTMLLinks(text) {
+    var exp = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(exp,"<a href='$1'>$1</a>"); 
+}
 function renderEvent(d){
 	if(d['delete']){
 		$("#messagelist .message-"+d['delete']).remove();
@@ -21,7 +26,7 @@ function renderEvent(d){
 		tmpl = $(tmpl);
 		tmpl.data("data", d).addClass("message-"+d['_id']);
 		if(d['text']){
-			$(".message-in", tmpl).html(d['text']);
+			$(".message-in", tmpl).html(replaceURLWithHTMLLinks(d['text']));
 		}
 		if(d['file']){
 			$(".message-in", tmpl).prepend("<div><img src='"+stream['static']+d['file']+"'></div>");
@@ -74,6 +79,9 @@ $(function(){
 			<div class="metadata"></div>
 		</div>
 	</div>
+</div>
+<div id="footer">
+	<div id="streamname">{$stream.name}</div>
 </div>
 </body>
 </html>
